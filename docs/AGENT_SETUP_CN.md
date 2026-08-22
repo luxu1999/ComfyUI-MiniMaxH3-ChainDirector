@@ -27,21 +27,25 @@ git clone https://github.com/luxu1999/ComfyUI-MiniMaxH3-ChainDirector.git
 
 # 3) 视频保存节点（VHS_VideoCombine，工作流必需）
 git clone https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite.git
+
+# 4) SageAttention 节点（工作流已启用，必须）
+git clone https://github.com/kijai/ComfyUI-KJNodes.git
 ```
 
 安装 Python 依赖：
 
 ```bash
-# 4) 导演台的依赖（scenedetect / opencv / imageio-ffmpeg 等）
+# 5) 导演台的依赖（scenedetect / opencv / imageio-ffmpeg 等）
 pip install -r ComfyUI_MiniMaxH3_Director/requirements.txt
+
+# 6) SageAttention（工作流已启用，必须；1.x 与 H3 兼容）
+pip install sageattention==1.0.6
 ```
 
 可选加速（不在默认工作流内，装不装都能跑）：
 
 ```bash
-# 5) SageAttention（KJ 的 Sage 节点需要；1.x 与 H3 兼容）
-pip install sageattention==1.0.6
-# 6) TeaCache：ComfyUI-MiniMaxH3-TeaCache（阈值必须 ≤ 0.1，否则画面抽搐）
+# 7) TeaCache：ComfyUI-MiniMaxH3-TeaCache（阈值必须 ≤ 0.1，否则画面抽搐）
 ```
 
 ## 3. 给导演台打两个补丁（关键！）
@@ -83,6 +87,8 @@ python patches/apply_patches.py D:/path/to/ComfyUI
 
 下载来源：[Kijai/MiniMax-H3_comfy](https://huggingface.co/Kijai/MiniMax-H3_comfy)（国内把链接前缀换成 `https://hf-mirror.com/`）。
 
+> **SageAttention 安装位置**：`pip install sageattention==1.0.6` 装进 ComfyUI 的 Python 环境（秋叶整合包用 `ComfyUI/python/python.exe -m pip install sageattention==1.0.6`）；节点插件在 `custom_nodes/ComfyUI-KJNodes`（节点名 `PathchSageAttentionKJ`，参数 `sage_attention=auto`）。工作流里 r2v / i2v 两条模型链各挂一个 Sage 节点。
+
 ### 4.2 参考图（放到 `ComfyUI/input/`）
 
 工作流示例用了 4 张图（可随意增减，最多 9 张）：
@@ -117,12 +123,12 @@ python patches/apply_patches.py D:/path/to/ComfyUI
 - 进度：`GET /history/{prompt_id}`，`executing` 消息里能看到节点 14 的采样进度。
 - 爆显存/内存：1080p 直出 10 秒以上会 OOM，改用分段（5 秒每段）或 720p/480p。
 - TeaCache 阈值 > 0.1 会导致画面抽搐，固定 ≤ 0.1。
-- SageAttention 仅 40 系用 v2；对本工作流不是必需，遇到兼容问题可去掉。
+- SageAttention 已启用（`PathchSageAttentionKJ`，`sage_attention=auto`）；必须使用 sageattention 1.x（2.x/3.x 与 H3 不兼容或仅 50 系生效）。
 
 ## 7. Agent 交付检查清单
 
-- [ ] `custom_nodes/` 下已安装：ComfyUI_MiniMaxH3_Director、ComfyUI-MiniMaxH3-ChainDirector、ComfyUI-VideoHelperSuite
-- [ ] Director 两个补丁已应用（`patches/apply_patches.py` 输出 `[OK]`），ComfyUI 已重启
+- [ ] `custom_nodes/` 下已安装：ComfyUI_MiniMaxH3_Director、ComfyUI-MiniMaxH3-ChainDirector、ComfyUI-VideoHelperSuite、ComfyUI-KJNodes
+- [ ] Director 两个补丁已应用（`patches/apply_patches.py` 输出 `[OK]`），sageattention 1.0.6 已装入 ComfyUI Python 环境，ComfyUI 已重启
 - [ ] 6 个模型/LoRA 文件已放到对应目录
 - [ ] 参考图已放入 `input/`，LoadImage 文件名与实际一致
 - [ ] 工作流载入成功，节点 `MiniMaxH3ChainDirector` 无红字

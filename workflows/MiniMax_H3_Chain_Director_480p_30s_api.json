@@ -54,6 +54,26 @@
                          },
               "class_type":  "LoraLoaderModelOnly"
           },
+    "16":  {
+               "inputs":  {
+                              "sage_attention":  "auto",
+                              "model":  [
+                                            "5",
+                                            0
+                                        ]
+                          },
+               "class_type":  "PathchSageAttentionKJ"
+           },
+    "17":  {
+               "inputs":  {
+                              "sage_attention":  "auto",
+                              "model":  [
+                                            "8",
+                                            0
+                                        ]
+                          },
+               "class_type":  "PathchSageAttentionKJ"
+           },
     "10":  {
                "inputs":  {
                               "image":  "正面.png"
@@ -86,7 +106,7 @@
                                                 0
                                             ],
                               "model_r2v":  [
-                                                "5",
+                                                "16",
                                                 0
                                             ],
                               "引导强度CFG":  1,
@@ -129,7 +149,7 @@
                               "分段方式":  "5秒每段 (推荐)",
                               "自动锚点":  true,
                               "model_i2v":  [
-                                                "8",
+                                                "17",
                                                 0
                                             ]
                           },

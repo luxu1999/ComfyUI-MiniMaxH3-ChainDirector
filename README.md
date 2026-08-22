@@ -64,7 +64,7 @@ MiniMax H3 单段直出有帧数上限（约 362 帧 ≈ 15 秒），且 16G 显
 
 ## 配套工作流
 
-`workflows/` 提供一条 **480p / 30 秒 / 6 段**（5 秒每段）示例工作流，含 `<Picture N>` 提示词写法：
+`workflows/` 提供一条 **480p / 30 秒 / 6 段**（5 秒每段）示例工作流（**已启用 SageAttention 加速**），含 `<Picture N>` 提示词写法：
 
 - `workflows/MiniMax_H3_Chain_Director_480p_30s.png` — 带内嵌工作流，**直接拖进 ComfyUI**
 - `workflows/MiniMax_H3_Chain_Director_480p_30s_api.json` — API 格式，适合 AI Agent / 脚本提交
@@ -78,13 +78,16 @@ MiniMax H3 单段直出有帧数上限（约 362 帧 ≈ 15 秒），且 16G 显
 1. [ComfyUI_MiniMaxH3_Director](https://github.com/AIMixer/ComfyUI_MiniMaxH3_Director)（导演台，且必须打本仓库 `patches/` 的两个补丁）
 2. **ComfyUI-MiniMaxH3-ChainDirector**（本仓库，提供链式导演台节点）
 3. [ComfyUI-VideoHelperSuite](https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite)（`VHS_VideoCombine` 保存节点）
+4. [ComfyUI-KJNodes](https://github.com/kijai/ComfyUI-KJNodes)（提供 `PathchSageAttentionKJ` SageAttention 节点，工作流已启用）
 
 ```bash
 cd ComfyUI/custom_nodes
 git clone https://github.com/AIMixer/ComfyUI_MiniMaxH3_Director.git
 git clone https://github.com/luxu1999/ComfyUI-MiniMaxH3-ChainDirector.git
 git clone https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite.git
+git clone https://github.com/kijai/ComfyUI-KJNodes.git
 pip install -r ComfyUI_MiniMaxH3_Director/requirements.txt
+pip install sageattention==1.0.6
 ```
 
 打补丁（Director 原版两个问题：Combine autogrow 不兼容、段间连续性失效）：
@@ -110,7 +113,13 @@ python patches/apply_patches.py            # 自动定位到 custom_nodes/ComfyU
 
 模型来源：[Kijai/MiniMax-H3_comfy](https://huggingface.co/Kijai/MiniMax-H3_comfy)，国内可用 `hf-mirror.com`。
 
-可选加速：SageAttention 1.0.6（KJ 的 Sage 节点）与 TeaCache（阈值 **≤ 0.1**），不在默认工作流内。
+### SageAttention 加速（当前工作流已启用）
+
+- **pip 安装位置**：ComfyUI 的 Python 环境（秋叶整合包即 `ComfyUI/python/python.exe -m pip install sageattention==1.0.6`；原生版即 `pip install sageattention==1.0.6`）。必须 1.x（2.x/3.x 与 H3 不兼容或仅 50 系生效）。
+- **节点插件位置**：`custom_nodes/ComfyUI-KJNodes`（`git clone https://github.com/kijai/ComfyUI-KJNodes.git`）。
+- **接线方式**：r2v 与 i2v 两条模型链（LoraLoaderModelOnly 之后、链式导演台之前）各挂一个 `PathchSageAttentionKJ`，参数 `sage_attention` 选 `auto`。
+
+可选加速：TeaCache（阈值 **≤ 0.1**，否则画面抽搐），不在默认工作流内。
 
 ## 给 AI Agent 的搭建文档
 
