@@ -1,0 +1,9 @@
+[project]
+name = "ComfyUI-MiniMaxH3-ChainDirector"
+version = "0.1.0"
+description = "MiniMax H3 Chain Director (CN/EN): auto split long video into r2v+i2v segments with first-frame locking, stitch video+audio in one node."
+requires-python = ">=3.10"
+license = { text = "MIT" }
+
+[tool.pytest.ini_options]
+pythonpath = ["."]

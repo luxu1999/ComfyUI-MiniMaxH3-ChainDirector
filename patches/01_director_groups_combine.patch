@@ -1,0 +1,10 @@
+--- a/nodes/director_groups.py
++++ b/nodes/director_groups.py
+@@ -340,7 +340,11 @@
+         @classmethod
+-        def execute(cls, groups=None) -> comfy_io.NodeOutput:
+-            return comfy_io.NodeOutput(_combine_groups(groups))
++        def execute(cls, groups=None, **kwargs) -> comfy_io.NodeOutput:
++            if groups is None:
++                groups = {k: v for k, v in kwargs.items() if k.startswith("group_")}
++            return comfy_io.NodeOutput(_combine_groups(groups))

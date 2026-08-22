@@ -1,0 +1,164 @@
+{
+    "1":  {
+              "inputs":  {
+                             "weight_dtype":  "default",
+                             "unet_name":  "minimax_h3_ref2va_pruned_int8_convrot.safetensors"
+                         },
+              "class_type":  "UNETLoader"
+          },
+    "7":  {
+              "inputs":  {
+                             "weight_dtype":  "default",
+                             "unet_name":  "minimax_h3_fl2va_pruned_int8_convrot.safetensors"
+                         },
+              "class_type":  "UNETLoader"
+          },
+    "2":  {
+              "inputs":  {
+                             "clip_name":  "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+                             "type":  "minimax"
+                         },
+              "class_type":  "CLIPLoader"
+          },
+    "3":  {
+              "inputs":  {
+                             "vae_name":  "minimax_h3_video_vae_fp16.safetensors"
+                         },
+              "class_type":  "VAELoader"
+          },
+    "4":  {
+              "inputs":  {
+                             "vae_name":  "minimax_h3_audio_vae_fp32.safetensors"
+                         },
+              "class_type":  "VAELoader"
+          },
+    "5":  {
+              "inputs":  {
+                             "strength_model":  0.75,
+                             "model":  [
+                                           "1",
+                                           0
+                                       ],
+                             "lora_name":  "minimax_h3_fl2v_lightx2v_turbo_4step_v0.1_comfy_resized_avg_rank_21_bf16.safetensors"
+                         },
+              "class_type":  "LoraLoaderModelOnly"
+          },
+    "8":  {
+              "inputs":  {
+                             "strength_model":  0.75,
+                             "model":  [
+                                           "7",
+                                           0
+                                       ],
+                             "lora_name":  "minimax_h3_fl2v_lightx2v_turbo_4step_v0.1_comfy_resized_avg_rank_21_bf16.safetensors"
+                         },
+              "class_type":  "LoraLoaderModelOnly"
+          },
+    "10":  {
+               "inputs":  {
+                              "image":  "正面.png"
+                          },
+               "class_type":  "LoadImage"
+           },
+    "11":  {
+               "inputs":  {
+                              "image":  "侧面.png"
+                          },
+               "class_type":  "LoadImage"
+           },
+    "12":  {
+               "inputs":  {
+                              "image":  "背面.png"
+                          },
+               "class_type":  "LoadImage"
+           },
+    "13":  {
+               "inputs":  {
+                              "image":  "桌面.jpg"
+                          },
+               "class_type":  "LoadImage"
+           },
+    "14":  {
+               "inputs":  {
+                              "音频时间偏移":  3,
+                              "video_vae":  [
+                                                "3",
+                                                0
+                                            ],
+                              "model_r2v":  [
+                                                "5",
+                                                0
+                                            ],
+                              "引导强度CFG":  1,
+                              "image_2":  [
+                                              "11",
+                                              0
+                                          ],
+                              "image_0":  [
+                                              "13",
+                                              0
+                                          ],
+                              "image_3":  [
+                                              "12",
+                                              0
+                                          ],
+                              "audio_vae":  [
+                                                "4",
+                                                0
+                                            ],
+                              "时间轴提示词":  "0-5s: 角色以小巧身形出现在显示器屏幕内部，从左侧探头张望，小心迈步从屏幕里钻出来，轻轻跳落到真实桌面上站定。\n5-10s: 角色好奇地在桌面上走动，路过键盘和鼠标，来到巧克力棒零食盒旁，抬头打量盒子，绕着它走了小半圈。\n10-15s: 角色把零食盒当成大BOSS，双手叉腰、压低重心、目光锁定盒子，绕盒小步观察，摆出备战姿势。\n15-20s: 角色深吸一口气蓄力冲刺，纵身一跃踢翻零食盒，零食哗啦散落桌面，角色帅气落地后轻轻呼气。\n20-25s: 角色面向镜头得意炫耀，双手叉腰挺起胸膛，朝镜头挥手，然后略带傲娇地扭头，又偷偷转回来看镜头。\n25-30s: 角色跳到键盘上，在按键之间蹦跳嬉戏、调皮打滚，最后站起来摆出俏皮定格姿势收尾。",
+                              "分辨率预设（百万像素）":  "0.4MP (480p)",
+                              "随机种子":  20260823,
+                              "image_1":  [
+                                              "10",
+                                              0
+                                          ],
+                              "调度器":  "simple",
+                              "自定义每段秒数":  5,
+                              "参考图最大边（像素）":  864,
+                              "自定义总时长（秒）":  30,
+                              "视频时间偏移":  12,
+                              "全局提示词":  "\u003cPicture 1\u003e 作为桌面场景参考，锁定显示器、白色机箱、键盘、鼠标、平板、巧克力棒零食盒、粉色篮子，所有桌面物体外观、材质、位置全程保持不变。巧克力棒零食盒永远维持纸质食品包装盒的样子，严禁变成宝箱、金属盒子、带锁扣的盒子或宝箱纹理。\n\u003cPicture 2\u003e、\u003cPicture 3\u003e、\u003cPicture 4\u003e 共同作为Q版蓝发鲸鱼女仆角色三视图参考。角色必须保持蓝发渐变长发、女仆发饰、深蓝女仆裙、白色围裙、鲸鱼尾巴、迷你体型和整体配色一致，禁止改变服装、发色、头饰和尾巴。",
+                              "采样步数":  4,
+                              "总时长预设":  "30秒",
+                              "clip":  [
+                                           "2",
+                                           0
+                                       ],
+                              "采样器":  "er_sde",
+                              "分段方式":  "5秒每段 (推荐)",
+                              "自动锚点":  true,
+                              "model_i2v":  [
+                                                "8",
+                                                0
+                                            ]
+                          },
+               "class_type":  "MiniMaxH3ChainDirector"
+           },
+    "15":  {
+               "inputs":  {
+                              "filename_prefix":  "MiniMaxH3/MiniMax_H3_Chain_Director_480p_30s",
+                              "frame_rate":  [
+                                                 "14",
+                                                 2
+                                             ],
+                              "format":  "video/h264-mp4",
+                              "save_metadata":  true,
+                              "crf":  19,
+                              "audio":  [
+                                            "14",
+                                            1
+                                        ],
+                              "save_output":  true,
+                              "images":  [
+                                             "14",
+                                             0
+                                         ],
+                              "trim_to_audio":  false,
+                              "loop_count":  0,
+                              "pix_fmt":  "yuv420p",
+                              "pingpong":  false
+                          },
+               "class_type":  "VHS_VideoCombine"
+           }
+}

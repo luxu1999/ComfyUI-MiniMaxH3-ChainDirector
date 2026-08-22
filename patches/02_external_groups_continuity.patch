@@ -1,0 +1,19 @@
+--- a/director/external_groups.py
++++ b/director/external_groups.py
+@@ -530,7 +530,12 @@
+-    return DirectorPlan(
+-        frame_rate=fps,
++    from .segment_continuity import resolve_continuity_settings
++
++    continuity_enabled, continuity_overlap = resolve_continuity_settings(
++        timeline, segment_count=len(segments)
++    )
++
++    return DirectorPlan(
++        frame_rate=fps,
+@@ -556,7 +561,9 @@
+         export_mode=export_mode,
+         run_indices=None,  # already filtered
++        continuity_enabled=continuity_enabled,
++        continuity_overlap_frames=continuity_overlap,
+     )
