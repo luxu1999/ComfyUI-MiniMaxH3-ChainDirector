@@ -66,8 +66,9 @@ MiniMax H3 单段直出有帧数上限（约 362 帧 ≈ 15 秒），且 16G 显
 
 `workflows/` 提供一条 **480p / 30 秒 / 6 段**（5 秒每段）示例工作流（**已启用 SageAttention 加速**），含 `<Picture N>` 提示词写法：
 
-- `workflows/MiniMax_H3_Chain_Director_480p_30s.png` — 带内嵌工作流，**直接拖进 ComfyUI**
-- `workflows/MiniMax_H3_Chain_Director_480p_30s_api.json` — API 格式，适合 AI Agent / 脚本提交
+- `workflows/MiniMax H3 Chain Director｜链式导演台（多段拼接）工作流.png` — 带内嵌工作流，**直接拖进 ComfyUI**
+- `workflows/MiniMax H3 Chain Director｜链式导演台（多段拼接）工作流.json` — UI 格式，ComfyUI 菜单 Load 载入（节点已人工排布，更易读）
+- `workflows/MiniMax H3 Chain Director｜链式导演台（多段拼接）工作流_api.json` — API 格式，适合 AI Agent / 脚本提交
 
 > 示例参考图：`input/桌面.jpg`、`input/正面.png`、`input/侧面.png`、`input/背面.png`。换成自己的图时改 `LoadImage` 文件名即可，数量随意（最多 9 张）。
 

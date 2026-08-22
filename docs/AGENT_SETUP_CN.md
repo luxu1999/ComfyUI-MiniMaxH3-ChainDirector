@@ -106,8 +106,8 @@ python patches/apply_patches.py D:/path/to/ComfyUI
 
 两种方式任选：
 
-- **人用**：把 `workflows/MiniMax_H3_Chain_Director_480p_30s.png` 直接拖进 ComfyUI 画布（PNG 内嵌工作流）。
-- **Agent 用**：读取 `workflows/MiniMax_H3_Chain_Director_480p_30s_api.json`（API 格式），POST 到 `http://127.0.0.1:8188/prompt`（带 `client_id`），轮询 `/history/{prompt_id}` 直到 `status_str == "success"`。
+- **人用**：把 `workflows/MiniMax H3 Chain Director｜链式导演台（多段拼接）工作流.png` 直接拖进 ComfyUI 画布（PNG 内嵌工作流），或用菜单 Load 载入同名 `.json`（人工排布版）。
+- **Agent 用**：读取 `workflows/MiniMax H3 Chain Director｜链式导演台（多段拼接）工作流_api.json`（API 格式），POST 到 `http://127.0.0.1:8188/prompt`（带 `client_id`），轮询 `/history/{prompt_id}` 直到 `status_str == "success"`。
 
 节点参数要点：
 
