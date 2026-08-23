@@ -16,8 +16,8 @@ from comfy.samplers import KSampler
 
 from .chain import RES_PRESETS, SPLIT_PRESETS, TIME_PRESETS, run_chain
 
-EN_TIME_PRESETS = ["15s", "30s", "45s", "60s", "90s", "120s", "Custom"]
-EN_SPLIT_PRESETS = ["5s per segment (recommended)", "10s per segment", "15s per segment", "Custom"]
+EN_TIME_PRESETS = ["5s", "10s", "15s", "30s", "45s", "60s", "90s", "120s"]
+EN_SPLIT_PRESETS = ["5s per segment (recommended)", "10s per segment", "15s per segment"]
 
 
 class MiniMaxH3ChainDirectorEN:
@@ -38,10 +38,8 @@ class MiniMaxH3ChainDirectorEN:
                 "global_prompt": ("STRING", {"multiline": True, "default": "", "tooltip": "Constant settings for the whole video: scene/style/character/camera. You may reference images with <Picture N>."}),
                 "timeline_prompt": ("STRING", {"multiline": True, "default": "", "tooltip": "Required. One line per block: 0-5s: action description. Auto-mapped to segments."}),
                 # ---------- parameters (below, English) ----------
-                "duration_preset": (EN_TIME_PRESETS, {"default": "30s", "tooltip": "Prefer presets (15/30/45/60/90/120s). Use Custom only for non-preset durations like 5/8/33s."}),
-                "custom_seconds": ("FLOAT", {"default": 30.0, "min": 5.0, "max": 600.0, "tooltip": "Only used when Duration Preset = Custom"}),
-                "split_preset": (EN_SPLIT_PRESETS, {"default": "5s per segment (recommended)", "tooltip": "Presets are only 5s/10s/15s per segment. Use Custom for special cases."}),
-                "custom_segment_seconds": ("FLOAT", {"default": 5.0, "min": 5.0, "max": 15.0, "tooltip": "Only used when Split Preset = Custom; max ~15s per segment"}),
+                "duration_preset": (EN_TIME_PRESETS, {"default": "30s", "tooltip": "Options: 5/10/15/30/45/60/90/120s"}),
+                "split_preset": (EN_SPLIT_PRESETS, {"default": "5s per segment (recommended)", "tooltip": "5/10/15s per segment; max ~15s (362 frames) per segment"}),
                 "resolution_preset": (list(RES_PRESETS.keys()), {"default": "0.4MP (480p)", "tooltip": "0.4MP=864x480 (480p) / 0.9MP=1280x736 (720p) / 2.0MP=1920x1088 (1080p)"}),
                 "ref_max_size": ("INT", {"default": 864, "min": 256, "max": 2048, "tooltip": "Max edge length for reference image resizing; usually matches the resolution preset"}),
                 "auto_anchor": ("BOOLEAN", {"default": True, "tooltip": "Auto-append first-frame lock / body-size / reference consistency anchors"}),
@@ -86,9 +84,7 @@ class MiniMaxH3ChainDirectorEN:
                 "global_prompt": kw["global_prompt"],
                 "timeline_prompt": kw["timeline_prompt"],
                 "duration_preset": kw["duration_preset"],
-                "custom_seconds": kw["custom_seconds"],
                 "split_preset": kw["split_preset"],
-                "custom_segment_seconds": kw["custom_segment_seconds"],
                 "resolution_preset": kw["resolution_preset"],
                 "ref_max_size": kw["ref_max_size"],
                 "auto_anchor": kw["auto_anchor"],

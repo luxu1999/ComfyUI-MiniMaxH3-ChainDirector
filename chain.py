@@ -22,8 +22,8 @@ import re
 import torch
 from comfy.samplers import KSampler
 
-TIME_PRESETS = ["15秒", "30秒", "45秒", "60秒", "90秒", "120秒", "自定义"]
-SPLIT_PRESETS = ["5秒每段 (推荐)", "10秒每段", "15秒每段", "自定义"]
+TIME_PRESETS = ["5秒", "10秒", "15秒", "30秒", "45秒", "60秒", "90秒", "120秒"]
+SPLIT_PRESETS = ["5秒每段 (推荐)", "10秒每段", "15秒每段"]
 RES_PRESETS = {
     "0.4MP (480p)": (864, 480, 864),
     "0.9MP (720p)": (1280, 736, 1280),
@@ -114,12 +114,8 @@ def run_chain(p, lang="zh"):
     clip = p["clip"]
     images = p.get("images") or {}
 
-    total_seconds = _to_seconds(p["duration_preset"], p["custom_seconds"])
-    if total_seconds is None:
-        total_seconds = float(p["custom_seconds"])
-    segment_seconds = _to_seconds(p["split_preset"], p["custom_segment_seconds"])
-    if segment_seconds is None:
-        segment_seconds = float(p["custom_segment_seconds"])
+    total_seconds = _to_seconds(p["duration_preset"], 30.0)
+    segment_seconds = _to_seconds(p["split_preset"], 5.0)
     width, height, ref_max_size = RES_PRESETS[p["resolution_preset"]]
     ref_max_size = int(p.get("ref_max_size") or ref_max_size)
 
@@ -323,10 +319,8 @@ class MiniMaxH3ChainDirector:
                 "全局提示词": ("STRING", {"multiline": True, "default": "", "tooltip": "全片不变的设定：场景/风格/角色/机位等；可用 <Picture N> 引用参考图"}),
                 "时间轴提示词": ("STRING", {"multiline": True, "default": "", "tooltip": "必填。每行格式：0-5s: 动作描述，节点自动按分段映射"}),
                 # ---------- 参数（提示词下方，中文名） ----------
-                "总时长预设": (TIME_PRESETS, {"default": "30秒", "tooltip": "推荐优先使用预设（15/30/45/60/90/120秒）；只有需要 5/8/33 秒等非预设时长时才选「自定义」"}),
-                "自定义总时长（秒）": ("FLOAT", {"default": 30.0, "min": 5.0, "max": 600.0, "tooltip": "仅当「总时长预设」选「自定义」时生效"}),
-                "分段方式": (SPLIT_PRESETS, {"default": "5秒每段 (推荐)", "tooltip": "预设每段只有 5秒/10秒/15秒 三类；特殊需求才选「自定义」"}),
-                "自定义每段秒数": ("FLOAT", {"default": 5.0, "min": 5.0, "max": 15.0, "tooltip": "仅当「分段方式」选「自定义」时生效；单段上限约 15 秒"}),
+                "总时长预设": (TIME_PRESETS, {"default": "30秒", "tooltip": "可选：5/10/15/30/45/60/90/120 秒"}),
+                "分段方式": (SPLIT_PRESETS, {"default": "5秒每段 (推荐)", "tooltip": "每段 5/10/15 秒；单段上限约 15 秒（362 帧）"}),
                 "分辨率预设（百万像素）": (list(RES_PRESETS.keys()), {"default": "0.4MP (480p)", "tooltip": "0.4MP=864×480(480p) / 0.9MP=1280×736(720p) / 2.0MP=1920×1088(1080p)"}),
                 "参考图最大边（像素）": ("INT", {"default": 864, "min": 256, "max": 2048, "tooltip": "参考图缩放的最大边长，一般与分辨率预设一致"}),
                 "自动锚点": ("BOOLEAN", {"default": True, "tooltip": "自动追加锁帧句/体型/参考图一致性锚点"}),
@@ -371,9 +365,7 @@ class MiniMaxH3ChainDirector:
                 "global_prompt": kw["全局提示词"],
                 "timeline_prompt": kw["时间轴提示词"],
                 "duration_preset": kw["总时长预设"],
-                "custom_seconds": kw["自定义总时长（秒）"],
                 "split_preset": kw["分段方式"],
-                "custom_segment_seconds": kw["自定义每段秒数"],
                 "resolution_preset": kw["分辨率预设（百万像素）"],
                 "ref_max_size": kw["参考图最大边（像素）"],
                 "auto_anchor": kw["自动锚点"],
