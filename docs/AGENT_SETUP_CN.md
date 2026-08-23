@@ -10,7 +10,7 @@
 
 - Windows / Linux 均可；ComfyUI ≥ 0.30（推荐 0.31.x）
 - Python 3.10+
-- 参考显卡：RTX 4080 16G（这套分段方案正是为了 16G 显存跑长视频：1080p 直出 10 秒+ 会 OOM）
+- 参考显卡：RTX 4080 16G；分段方案同样适配低显存（8G 起）——1080p 直出 10 秒+ 会 OOM，分段后低显存也能跑长视频
 - 网络：GitHub + HuggingFace（国内可用 `gh-proxy.com` 镜像和 `hf-mirror.com`）
 
 ## 2. 安装插件（工作流用到以下全部插件，缺一不可）

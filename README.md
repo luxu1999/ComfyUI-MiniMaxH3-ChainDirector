@@ -1,6 +1,6 @@
 # ComfyUI-MiniMaxH3-ChainDirector
 
-MiniMax H3 链式导演台（Chain Director）自定义节点：**一个节点自动完成「按总时长分段 → 首段 r2v → 后续段 i2v 首帧锁定接力 → 画面/音频拼接」**，专为在 16G 显存上生成 MiniMax H3 长视频设计。
+MiniMax H3 链式导演台（Chain Director）自定义节点：**一个节点自动完成「按总时长分段 → 首段 r2v → 后续段 i2v 首帧锁定接力 → 画面/音频拼接」**，通过分段拼接显著降低显存占用，低显存（8G 起）也能生成 MiniMax H3 长视频。
 
 ## 节点
 
