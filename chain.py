@@ -46,7 +46,7 @@ def _parse_timeline(text):
         if not line or line.startswith("#"):
             continue
         m = re.match(
-            r"^\s*(\d+(?:\.\d+)?)\s*[-~–—至]+\s*(\d+(?:\.\d+)?)\s*[s秒]?\s*[:：]?\s*(.+)$",
+            r"^\s*(\d+(?:\.\d+)?)\s*[-‐‑‒–—―~～至－]+\s*(\d+(?:\.\d+)?)\s*[s秒]?\s*[:：]?\s*(.+)$",
             line,
         )
         if m:
