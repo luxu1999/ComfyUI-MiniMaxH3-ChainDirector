@@ -16,6 +16,8 @@
 
 ## 2. 安装插件（工作流用到以下全部插件，缺一不可）
 
+**最快方式**：克隆本仓库后运行 `python scripts/install_all.py`，会自动补齐下面 3 个插件并安装 Python 依赖（含 sageattention==1.0.6），等效于手动执行本节的每一条命令。手动方式如下：
+
 在 `ComfyUI/custom_nodes/` 下安装：
 
 ```bash

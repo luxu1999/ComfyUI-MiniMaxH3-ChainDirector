@@ -71,6 +71,21 @@ MiniMax H3 单段直出有帧数上限（约 362 帧 ≈ 15 秒），且 16G 显
 
 > 示例参考图：`input/桌面.jpg`、`input/正面.png`、`input/侧面.png`、`input/背面.png`。换成自己的图时改 `LoadImage` 文件名即可，数量随意（最多 9 张）。
 
+## 安装（零配置三步）
+
+1. **装本插件**：ComfyUI-Manager 或 Comfy Registry 里搜「ChainDirector / MiniMax-H3」一键安装；或手动 `git clone https://github.com/luxu1999/ComfyUI-MiniMaxH3-ChainDirector.git` 到 `custom_nodes/`。
+2. **自动补齐其余插件与依赖**（一次命令）：
+   ```bash
+   cd custom_nodes/ComfyUI-MiniMaxH3-ChainDirector
+   python scripts/install_all.py        # 自动安装 Director / VideoHelperSuite / KJNodes + 依赖 + sageattention
+   ```
+3. **下载模型**（约 60GB，一次命令）：
+   ```bash
+   python scripts/download_models.py    # 默认 hf-mirror.com；加 --mirror hfco 用原生
+   ```
+4. 重启 ComfyUI，拖入 `workflows/` 的工作流即可跑。
+
+> 模型文件太大无法内置，只能用脚本下载；插件与 Python 依赖已做到一键自动安装。
 ## 安装与依赖插件
 
 工作流用到的插件（**全部必须安装**）：
