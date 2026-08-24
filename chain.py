@@ -92,6 +92,13 @@ def run_chain(p, lang="zh"):
       resolution_preset, ref_max_size, auto_anchor
       steps, sampler, scheduler, cfg, seed, shift_video, shift_audio
     """
+    try:
+        from . import _autopatch
+        _patch_msg = _autopatch.ensure_director_ready()
+        if _patch_msg:
+            print(_patch_msg, flush=True)
+    except Exception as _exc:  # noqa: BLE001
+        print("[MiniMaxH3ChainDirector] 自检失败（继续执行）: %s" % _exc, flush=True)
     from ComfyUI_MiniMaxH3_Director.nodes.director_common import (  # noqa: PLC0415
         finalize_director_outputs,
         prepare_director_plan,

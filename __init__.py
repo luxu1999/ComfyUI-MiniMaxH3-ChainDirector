@@ -45,3 +45,10 @@ NODE_CLASS_MAPPINGS["MiniMaxH3ChainDirector"] = MiniMaxH3ChainDirector
 NODE_DISPLAY_NAME_MAPPINGS["MiniMaxH3ChainDirector"] = "MiniMax H3 Chain Director｜链式导演台（多段拼接）"
 NODE_CLASS_MAPPINGS["MiniMaxH3ChainDirectorEN"] = MiniMaxH3ChainDirectorEN
 NODE_DISPLAY_NAME_MAPPINGS["MiniMaxH3ChainDirectorEN"] = "MiniMax H3 Chain Director"
+try:
+    from . import _autopatch
+    _status = _autopatch.ensure_director_ready()
+    if _status:
+        print(_status, flush=True)
+except Exception as _exc:  # noqa: BLE001
+    print("[MiniMaxH3ChainDirector] 自检失败（不影响节点加载）: %s" % _exc, flush=True)

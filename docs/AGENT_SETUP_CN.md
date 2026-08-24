@@ -48,16 +48,18 @@ pip install sageattention==1.0.6
 # 7) TeaCache：ComfyUI-MiniMaxH3-TeaCache（阈值必须 ≤ 0.1，否则画面抽搐）
 ```
 
-## 3. 给导演台打两个补丁（关键！）
+## 3. 导演台补丁（自动处理，无需手动）
 
-原版导演台有 2 个问题，不打补丁工作流会报错或衔接失效：
+链式导演台节点**自带运行时自检**：首次生成时会自动检测 Director 是否缺少「段连续性接线」，缺则直接在内存中补齐，无需手动打补丁、无需重启（已实测未打补丁的旧版 Director 拼接缝依然顺滑）。克隆最新版 Director 时该接线已内置，检测为「已存在」。
+
+以下手动补丁**仅在使用旧版 Director 的 Combine 节点（旧三段拼合工作流）时需要**：
 
 | 补丁 | 解决 | 文件 |
 |---|---|---|
 | 1. Combine autogrow 兼容 | `Director Groups Combine: connect at least one group` | `nodes/director_groups.py` |
 | 2. 外部组连续性 | 段间「尾帧→下一段首帧」不生效、衔接硬切/角色消失 | `director/external_groups.py` |
 
-**推荐方式**：运行本仓库的自动打补丁脚本
+如需手动应用，运行本仓库的自动打补丁脚本
 
 ```bash
 cd ComfyUI-MiniMaxH3-ChainDirector
@@ -128,7 +130,7 @@ python patches/apply_patches.py D:/path/to/ComfyUI
 ## 7. Agent 交付检查清单
 
 - [ ] `custom_nodes/` 下已安装：ComfyUI_MiniMaxH3_Director、ComfyUI-MiniMaxH3-ChainDirector、ComfyUI-VideoHelperSuite、ComfyUI-KJNodes
-- [ ] Director 两个补丁已应用（`patches/apply_patches.py` 输出 `[OK]`），sageattention 1.0.6 已装入 ComfyUI Python 环境，ComfyUI 已重启
+- [ ] Director 已安装（链式节点会自动内存补齐旧版连续性接线；旧三段拼合工作流才需手动应用补丁），sageattention 1.0.6 已装入 ComfyUI Python 环境
 - [ ] 6 个模型/LoRA 文件已放到对应目录
 - [ ] 参考图已放入 `input/`，LoadImage 文件名与实际一致
 - [ ] 工作流载入成功，节点 `MiniMaxH3ChainDirector` 无红字

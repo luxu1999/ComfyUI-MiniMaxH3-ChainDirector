@@ -75,7 +75,7 @@ MiniMax H3 单段直出有帧数上限（约 362 帧 ≈ 15 秒），且 16G 显
 
 工作流用到的插件（**全部必须安装**）：
 
-1. [ComfyUI_MiniMaxH3_Director](https://github.com/AIMixer/ComfyUI_MiniMaxH3_Director)（导演台，且必须打本仓库 `patches/` 的两个补丁）
+1. [ComfyUI_MiniMaxH3_Director](https://github.com/AIMixer/ComfyUI_MiniMaxH3_Director)（导演台。**链式导演台节点会自动检测并补齐旧版 Director 缺少的连续性接线，无需手动打补丁**；旧三段拼合工作流需要的话仍可用 `patches/apply_patches.py`）
 2. **ComfyUI-MiniMaxH3-ChainDirector**（本仓库，提供链式导演台节点）
 3. [ComfyUI-VideoHelperSuite](https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite)（`VHS_VideoCombine` 保存节点）
 4. [ComfyUI-KJNodes](https://github.com/kijai/ComfyUI-KJNodes)（提供 `PathchSageAttentionKJ` SageAttention 节点，工作流已启用）
@@ -90,7 +90,7 @@ pip install -r ComfyUI_MiniMaxH3_Director/requirements.txt
 pip install sageattention==1.0.6
 ```
 
-打补丁（Director 原版两个问题：Combine autogrow 不兼容、段间连续性失效）：
+补丁说明（可选）：Director 原版两个问题（Combine autogrow 不兼容、段间连续性失效）——链式导演台节点已内置运行时自动补齐，普通使用无需手动打补丁；只有使用旧版 Director 的 Combine 节点（旧三段拼合工作流）时才需要手动应用：
 
 ```bash
 cd ComfyUI-MiniMaxH3-ChainDirector
@@ -98,7 +98,7 @@ python patches/apply_patches.py            # 自动定位到 custom_nodes/ComfyU
 # 或 python patches/apply_patches.py D:/path/to/ComfyUI
 ```
 
-打完补丁**必须重启 ComfyUI**。
+打完补丁**必须重启 ComfyUI**。链式节点的运行时自动补齐不需要重启。
 
 ### 模型与 LoRA（放到对应目录）
 
@@ -140,3 +140,6 @@ MIT
 
 - [ComfyUI_MiniMaxH3_Director](https://github.com/AIMixer/ComfyUI_MiniMaxH3_Director)（AIMixer）
 - MiniMax H3 / LightX2V
+## 更新记录
+
+- 2026-08-24：新增运行时自动检测/内存补齐 Director 连续性接线（方案 B），克隆最新 Director 即可用，无需手动打补丁；原 patches/apply_patches.py 手动方式保留。
