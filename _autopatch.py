@@ -99,6 +99,11 @@ def _install_continuity_wrapper(ext_mod, original):
         return False
 
 
+
+def director_available() -> bool:
+    """Director 是否可用（已加载且可导入）。"""
+    return _find_director_module() is not None
+
 def ensure_director_ready() -> str:
     """返回给控制台的可读状态信息（幂等、安全）。运行期调用一次后缓存结果。"""
     global _checked

@@ -97,6 +97,14 @@ def run_chain(p, lang="zh"):
         _patch_msg = _autopatch.ensure_director_ready()
         if _patch_msg:
             print(_patch_msg, flush=True)
+        if not _autopatch.director_available():
+            raise ValueError(
+                "缺少依赖插件 ComfyUI_MiniMaxH3_Director：请先把该插件装进 "
+                "ComfyUI/custom_nodes/（git clone https://github.com/AIMixer/"
+                "ComfyUI_MiniMaxH3_Director.git），安装它的依赖并重启 ComfyUI。"
+            )
+    except ValueError:
+        raise
     except Exception as _exc:  # noqa: BLE001
         print("[MiniMaxH3ChainDirector] 自检失败（继续执行）: %s" % _exc, flush=True)
     from ComfyUI_MiniMaxH3_Director.nodes.director_common import (  # noqa: PLC0415
