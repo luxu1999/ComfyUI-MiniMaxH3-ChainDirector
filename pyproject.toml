@@ -13,3 +13,6 @@ Repository = "https://github.com/luxu1999/ComfyUI-MiniMaxH3-ChainDirector"
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
+
+[tool.comfy]
+publisher_id = "luxu1999"
