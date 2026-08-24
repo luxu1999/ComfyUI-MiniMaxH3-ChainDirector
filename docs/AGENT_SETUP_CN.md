@@ -18,6 +18,8 @@
 
 **最快方式**：克隆本仓库后运行 `python scripts/install_all.py`，会自动补齐下面 3 个插件并安装 Python 依赖（含 sageattention==1.0.6），等效于手动执行本节的每一条命令。手动方式如下：
 
+> 注意：通过 Comfy Registry / Manager 安装的发布包为通过安全扫描，不含 scripts/ 目录（一键脚本仅随 GitHub 克隆提供）；此时请用 git clone 方式获取脚本，或直接按下方手动命令逐条执行。
+
 在 `ComfyUI/custom_nodes/` 下安装：
 
 ```bash

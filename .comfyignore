@@ -1,0 +1,3 @@
+# Registry 发布包排除：scripts/ 仅供 GitHub 克隆版使用。
+# （yara 安全扫描会标记 urllib/requests 等网络操作，导致版本被 Flagged）
+scripts/

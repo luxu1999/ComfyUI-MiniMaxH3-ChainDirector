@@ -88,6 +88,8 @@ MiniMax H3 单段直出有帧数上限（约 362 帧 ≈ 15 秒），且 16G 显
 4. 重启 ComfyUI，拖入 `workflows/` 的工作流即可跑。
 
 > 模型文件太大无法内置，只能用脚本下载；插件与 Python 依赖已做到一键自动安装。
+
+> **注意**：通过 Comfy Registry / Manager 安装的发布包为通过安全扫描，不含 scripts/ 目录（一键脚本仅随 GitHub 克隆提供）；Registry 用户可直接用 Manager 安装 Director / VideoHelperSuite / KJNodes，模型按上文文件名手动放入对应目录即可。
 ## 安装与依赖插件
 
 工作流用到的插件（**全部必须安装**）：
