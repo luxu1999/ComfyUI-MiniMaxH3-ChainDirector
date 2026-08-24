@@ -90,7 +90,7 @@ pip install -r ComfyUI_MiniMaxH3_Director/requirements.txt
 pip install sageattention==1.0.6
 ```
 
-补丁说明（可选）：Director 原版两个问题（Combine autogrow 不兼容、段间连续性失效）——链式导演台节点已内置运行时自动补齐，普通使用无需手动打补丁；只有使用旧版 Director 的 Combine 节点（旧三段拼合工作流）时才需要手动应用：
+补丁说明（可选）：Director 原版两个问题（Combine autogrow 不兼容、段间连续性失效）——链式导演台节点已内置运行时自动补齐，普通使用无需手动打补丁；只有使用旧版 Director 的 Combine 节点（旧三段拼合工作流，见 [ComfyUI-ListUnwrap](https://github.com/luxu1999/ComfyUI-ListUnwrap)）时才需要手动应用：
 
 ```bash
 cd ComfyUI-MiniMaxH3-ChainDirector
