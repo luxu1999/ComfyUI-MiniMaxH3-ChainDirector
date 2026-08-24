@@ -268,7 +268,7 @@ def run_chain(p, lang="zh"):
             unique_id=node_id,
             **kwargs_groups,
         )
-        combined, seg_outputs, seg_audios, report = execute_director_plan_core(
+        _exec_result = execute_director_plan_core(
             plan,
             node_id=node_id,
             model=(model_r2v if i == 0 else model_i2v),
@@ -284,7 +284,14 @@ def run_chain(p, lang="zh"):
             shift_audio=float(p.get("shift_audio", 3.0)),
             clear_vram_between_segments=True,
         )
-        images_out, audio_out, _fps, _fc, _src, _rep = finalize_director_outputs(
+        # 兼容新旧 Director：新版多返回 export_frame_counts / pre_combined / segment_pre_refine
+        combined, seg_outputs, seg_audios, report = (
+            _exec_result[0],
+            _exec_result[1],
+            _exec_result[2],
+            _exec_result[3],
+        )
+        _finalized = finalize_director_outputs(
             plan,
             combined,
             seg_outputs,
@@ -292,6 +299,8 @@ def run_chain(p, lang="zh"):
             export_source_images=False,
             segment_audios=seg_audios,
         )
+        # 兼容新旧 Director：新版多返回 source_images_out / pre_refine_out
+        images_out, audio_out = _finalized[0], _finalized[1]
 
         batch = images_out[0]
         all_images.append(batch)

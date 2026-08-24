@@ -1,6 +1,6 @@
 [project]
 name = "ComfyUI-MiniMaxH3-ChainDirector"
-version = "0.1.2"
+version = "0.1.3"
 description = "MiniMax H3 Chain Director (CN/EN): auto split long video into r2v+i2v segments with first-frame locking, stitch video+audio in one node. 链式导演台：自动分段拼接 MiniMax H3 长视频"
 readme = "README.md"
 requires-python = ">=3.10"
