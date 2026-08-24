@@ -15,4 +15,5 @@ Repository = "https://github.com/luxu1999/ComfyUI-MiniMaxH3-ChainDirector"
 pythonpath = ["."]
 
 [tool.comfy]
-publisher_id = "luxu1999"
+PublisherId = "luxu1999"
+DisplayName = "MiniMax H3 Chain Director｜链式导演台"
