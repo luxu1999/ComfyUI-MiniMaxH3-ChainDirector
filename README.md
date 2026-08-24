@@ -142,4 +142,4 @@ MIT
 - MiniMax H3 / LightX2V
 ## 更新记录
 
-- 2026-08-24：新增运行时自动检测/内存补齐 Director 连续性接线（方案 B），克隆最新 Director 即可用，无需手动打补丁；原 patches/apply_patches.py 手动方式保留。
+- 2026-08-24：新增运行时自动检测/内存补齐 Director 连续性接线，克隆最新 Director 即可用，无需手动打补丁；原 patches/apply_patches.py 手动方式保留。

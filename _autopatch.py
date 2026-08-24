@@ -1,4 +1,4 @@
-"""Runtime self-heal for ComfyUI_MiniMaxH3_Director (Plan B, no disk writes).
+"""Runtime self-heal for ComfyUI_MiniMaxH3_Director (no disk writes).
 
 说明：链式导演台节点本身不依赖 Director 的补丁——i2v 首帧锁定是通过组内的
 SegmentRef 传递的（已实测未打补丁的旧版 Director 拼接缝依然顺滑）。
