@@ -35,18 +35,64 @@ _REQUIRED_API = (
     ("director", "fl2v_timeline", "_duration_to_minimax_frames"),
 )
 
+# 链式导演台会直接 import 的 Director 子模块（用于 sys.modules 干净别名）
+_ALIAS_SUBMODULES = (
+    ("nodes", "director_common"),
+    ("director", "executor_core"),
+    ("director", "external_groups"),
+    ("director", "fl2v_timeline"),
+    ("director", "segment_continuity"),
+)
+
 _checked = False
 
 
 def _find_director_module():
-    """优先从 sys.modules 取（运行期必在），否则尝试普通 import。"""
+    """定位 Director 包。
+
+    优先按干净包名取；新版 ComfyUI 把目录型自定义节点注册进 sys.modules 时
+    用的是「全路径.replace('.', '_x_')」键（干净包名不存在，且 custom_nodes
+    不在 sys.path 上），因此回退扫描 sys.modules 中以后缀结尾的真实模块。
+    """
     mod = sys.modules.get(_DIRECTOR_PKG)
     if mod is not None:
         return mod
+    for _key, _mod in sys.modules.items():
+        if _mod is not None and _key.endswith(_DIRECTOR_PKG):
+            return _mod
     try:
         return __import__(_DIRECTOR_PKG)
     except Exception:  # noqa: BLE001
         return None
+
+
+def _alias_director_modules(root):
+    """把 Director 及其子模块按干净包名登记进 sys.modules。
+
+    保证 rom ComfyUI_MiniMaxH3_Director.nodes.director_common import ...
+    这类语句拿到的是 ComfyUI 已加载的同一份实例（避免二次导入导致类身份
+    不一致）。幂等：干净名已存在时跳过。
+    """
+    added = 0
+    sys.modules.setdefault(_DIRECTOR_PKG, root)
+    for _sub in ("nodes", "director"):
+        _sub_mod = getattr(root, _sub, None)
+        if _sub_mod is not None:
+            _clean = f"{_DIRECTOR_PKG}.{_sub}"
+            if _clean not in sys.modules:
+                sys.modules[_clean] = _sub_mod
+                added += 1
+    for _sub, _mod_name in _ALIAS_SUBMODULES:
+        _clean = f"{_DIRECTOR_PKG}.{_sub}.{_mod_name}"
+        if _clean in sys.modules:
+            continue
+        _suffix = f".{_sub}.{_mod_name}"
+        for _key, _mod in sys.modules.items():
+            if _mod is not None and _key.endswith(_suffix):
+                sys.modules[_clean] = _mod
+                added += 1
+                break
+    return added
 
 
 def _director_dir_exists() -> bool:
@@ -123,6 +169,7 @@ def ensure_director_ready() -> str:
         )
 
     _checked = True
+    _alias_director_modules(mod)
     msgs = []
 
     missing = []
