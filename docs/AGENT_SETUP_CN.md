@@ -113,8 +113,10 @@ python patches/apply_patches.py D:/path/to/ComfyUI
 
 两种方式任选：
 
-- **人用**：把 `workflows/MiniMax H3 Chain Director｜链式导演台（多段拼接）工作流.png` 直接拖进 ComfyUI 画布（PNG 内嵌工作流），或用菜单 Load 载入同名 `.json`（人工排布版）。
-- **Agent 用**：读取 `workflows/MiniMax H3 Chain Director｜链式导演台（多段拼接）工作流_api.json`（API 格式），POST 到 `http://127.0.0.1:8188/prompt`（带 `client_id`），轮询 `/history/{prompt_id}` 直到 `status_str == "success"`；如果响应里有 `node_errors`，逐条读取并按错误信息修复。
+- **人用**：把 `workflows/MiniMax_H3_Chain_Director_workflow.png` 直接拖进 ComfyUI 画布（PNG 内嵌工作流），或用菜单 Load 载入同名 `.json`（人工排布版）。
+- **Agent 用**：读取 `workflows/MiniMax_H3_Chain_Director_workflow_api.json`（API 格式），POST 到 `http://127.0.0.1:8188/prompt`（带 `client_id`），轮询 `/history/{prompt_id}` 直到 `status_str == "success"`；如果响应里有 `node_errors`，逐条读取并按错误信息修复。
+
+> GitHub 源码里另有中文文件名副本（`MiniMax H3 Chain Director｜链式导演台（多段拼接）工作流.png / .json / _api.json`），内容一致；通过 Registry / Manager 安装的目录中只有英文名版本。
 
 节点参数要点：
 
@@ -161,6 +163,6 @@ cd ../ComfyUI-KJNodes && git pull
 
 - 若某插件当初是 zip 手动安装的（不是 git 克隆），`git pull` 会报错：删掉该文件夹 → 重新从 GitHub 下载最新版解压。
 - 更新后**重启 ComfyUI**；Director 更新后无需重新打补丁（节点会自动检测）。
-- **工作流也要更新**：从仓库 `workflows/` 重新下载最新的 `工作流.png / .json / _api.json`，用新版重新载入（旧画布上的旧节点参数可能和新版对不上）。
+- **工作流也要更新**：从仓库 `workflows/` 重新下载最新的 `MiniMax_H3_Chain_Director_workflow.png / .json / _api.json`（GitHub 另有中文文件名副本，内容一致），用新版重新载入（旧画布上的旧节点参数可能和新版对不上）。
 - `git pull` 报冲突：说明该文件夹被手动改过 → 先备份改动再 `git stash`，或直接删掉重克隆。
 - 国内网络拉不动 GitHub：把仓库地址换成 `https://gh-proxy.com/https://github.com/...` 或开启代理。

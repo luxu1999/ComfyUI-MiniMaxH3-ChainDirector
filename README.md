@@ -65,9 +65,11 @@ MiniMax H3 单段直出有帧数上限（约 362 帧 ≈ 15 秒），且 16G 显
 
 `workflows/` 提供一条 **480p / 30 秒 / 6 段**（5 秒每段）示例工作流（**已启用 SageAttention 加速**），含 `<Picture N>` 提示词写法：
 
-- `workflows/MiniMax H3 Chain Director｜链式导演台（多段拼接）工作流.png` — 带内嵌工作流，**直接拖进 ComfyUI**
-- `workflows/MiniMax H3 Chain Director｜链式导演台（多段拼接）工作流.json` — UI 格式，ComfyUI 菜单 Load 载入（节点已人工排布，更易读）
-- `workflows/MiniMax H3 Chain Director｜链式导演台（多段拼接）工作流_api.json` — API 格式，适合 AI Agent / 脚本提交
+- `workflows/MiniMax_H3_Chain_Director_workflow.png` — 带内嵌工作流，**直接拖进 ComfyUI**
+- `workflows/MiniMax_H3_Chain_Director_workflow.json` — UI 格式，ComfyUI 菜单 Load 载入（节点已人工排布，更易读）
+- `workflows/MiniMax_H3_Chain_Director_workflow_api.json` — API 格式，适合 AI Agent / 脚本提交
+
+> 通过 Comfy Registry / Manager 安装后，插件目录 `workflows/` 下即以上述英文文件名出现；GitHub 源码里另有同名中文版副本（`MiniMax H3 Chain Director｜链式导演台（多段拼接）工作流.*`），内容完全一致，方便网页浏览。
 
 > 示例参考图：`input/桌面.jpg`、`input/正面.png`、`input/侧面.png`、`input/背面.png`。换成自己的图时改 `LoadImage` 文件名即可，数量随意（最多 9 张）。
 
@@ -140,7 +142,7 @@ python patches/apply_patches.py            # 自动定位到 custom_nodes/ComfyU
 
 用 Codex / OpenClaw 等 AI Agent 自动复现整套流程？直接把 [docs/AGENT_SETUP_CN.md](docs/AGENT_SETUP_CN.md) 交给 Agent，它会照着下载插件、打补丁、放模型、载入工作流并运行。
 
-提示词写法见 [docs/通用提示词填写方法.md](docs/通用提示词填写方法.md) 与 [docs/总提示词拆分与一致性指南.md](docs/总提示词拆分与一致性指南.md)。
+提示词写法见 [docs/prompt-writing-guide.md](docs/prompt-writing-guide.md)（通用提示词填写方法）与 [docs/prompt-split-and-consistency-guide.md](docs/prompt-split-and-consistency-guide.md)（总提示词拆分与一致性指南）；仓库内另有对应中文文件名副本，内容一致。
 
 ## 兼容性
 
