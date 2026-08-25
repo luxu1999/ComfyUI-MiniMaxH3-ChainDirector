@@ -63,7 +63,7 @@ MiniMax H3 单段直出有帧数上限（约 362 帧 ≈ 15 秒），且 16G 显
 
 ## 配套工作流
 
-`workflows/` 提供一条 **480p / 30 秒 / 6 段**（5 秒每段）示例工作流（**已启用 SageAttention 加速**），含 `<Picture N>` 提示词写法：
+`workflows/` 提供一条 **480p / 30 秒 / 6 段**（5 秒每段）示例工作流（**已启用 SageAttention 加速（未安装 sageattention 的机器请将两个 SageAttention 节点 bypass 后运行）**），含 `<Picture N>` 提示词写法：
 
 - `workflows/MiniMax_H3_Chain_Director_workflow.png` — 带内嵌工作流，**直接拖进 ComfyUI**
 - `workflows/MiniMax_H3_Chain_Director_workflow.json` — UI 格式，ComfyUI 菜单 Load 载入（节点已人工排布，更易读）
@@ -71,8 +71,7 @@ MiniMax H3 单段直出有帧数上限（约 362 帧 ≈ 15 秒），且 16G 显
 
 > 通过 Comfy Registry / Manager 安装后，插件目录 `workflows/` 下即以上述英文文件名出现；GitHub 源码里另有同名中文版副本（`MiniMax H3 Chain Director｜链式导演台（多段拼接）工作流.*`），内容完全一致，方便网页浏览。
 
-> ???? 1 ????????`ref_video`?? IMAGE ?????? VHS LoadVideo ???? 1 ????????`ref_audio`?? AUDIO?????????????????????????????????????????????????????????????????? Director ???????????????
-ef_audio_0~2，接 AUDIO），作用于首段 r2v；旧版 Director 不支持时会自动忽略并提示更新。
+> 节点另有 1 个参考视频输入（`ref_video`，接 IMAGE 帧序列，可用 VHS LoadVideo 直接连接）与 1 个参考音频输入（`ref_audio`，接 AUDIO），**自动按段切分**：视频默认等比切分（可填「参考视频帧率」精确按秒切）并重采样对齐画布，音频按秒切分、不足循环补足；参考作用于**每一段**（首段 r2v + 后续 i2v 段），旧版 Director 不支持时会自动忽略并提示更新。
 
 > 示例参考图：`input/桌面.jpg`、`input/正面.png`、`input/侧面.png`、`input/背面.png`。换成自己的图时改 `LoadImage` 文件名即可，数量随意（最多 9 张）。
 
@@ -163,5 +162,6 @@ MIT
 - [ComfyUI_MiniMaxH3_Director](https://github.com/AIMixer/ComfyUI_MiniMaxH3_Director)（AIMixer）
 - MiniMax H3 / LightX2V
 ## 更新记录
+- 2026-08-26：**新增参考视频/音频功能**——新增 `ref_video`（参考视频，单口接 IMAGE 帧序列，VHS LoadVideo 可直接连接）与 `ref_audio`（参考音频，单口接 AUDIO）两个接口；长参考自动按段切分（视频等比或按帧率精确切并重采样对齐，音频按秒切分、不足循环补足），参考作用于**每一段**（首段 r2v + 后续 i2v 段）；新增「参考视频帧率」参数；修复中文节点参数键名回归。
 
 - 2026-08-24：新增运行时自动检测/内存补齐 Director 连续性接线，克隆最新 Director 即可用，无需手动打补丁；原 patches/apply_patches.py 手动方式保留。
