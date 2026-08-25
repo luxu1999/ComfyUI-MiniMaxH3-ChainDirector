@@ -17,6 +17,7 @@
 from __future__ import annotations
 
 import json
+import math
 import re
 import inspect
 
@@ -82,6 +83,72 @@ def _to_seconds(token, fallback):
     return float(m.group(1)) if m else float(fallback)
 
 
+def _resample_frames(frames, target):
+    """Resample [B,H,W,C] frames to target count (linear pick, deterministic)."""
+    n = frames.shape[0]
+    if n <= 0 or n == target:
+        return frames
+    idx = torch.linspace(0, n - 1, max(1, int(target))).round().long().clamp(0, n - 1)
+    return frames[idx]
+
+
+def _fit_frames(frames, w, h):
+    """Resize [B,H,W,C] frames to (h, w) canvas (bilinear, deterministic)."""
+    if frames.shape[1] == h and frames.shape[2] == w:
+        return frames
+    x = frames.permute(0, 3, 1, 2).contiguous()
+    x = torch.nn.functional.interpolate(x, size=(h, w), mode="bilinear", align_corners=False)
+    return x.permute(0, 2, 3, 1).contiguous()
+
+
+def _slice_video_ref(frames, seg_count, seg_frames, fps, seg_seconds):
+    """Auto-slice reference video per segment.
+
+    fps>0: slice by real fps * segment seconds (falls back to proportional on mismatch).
+    fps<=0: proportional slicing (total frames / segment count), works for any fps.
+    Each slice is resampled to the target segment frame count.
+    """
+    if frames is None:
+        return [None] * seg_count
+    n = frames.shape[0]
+    per = max(1, n // seg_count)
+    if fps and fps > 0:
+        per_fps = max(1, int(round(fps * seg_seconds)))
+        if abs(per_fps * seg_count - n) <= max(4, int(n * 0.1)):
+            per = per_fps
+        else:
+            print("[MiniMaxH3ChainDirector] Reference video fps does not match frame count, fallback to proportional slicing.", flush=True)
+    chunks = []
+    for i in range(seg_count):
+        st = i * per
+        en = min(n, st + per)
+        if st >= n:
+            chunks.append(None)
+            continue
+        chunks.append(_resample_frames(frames[st:en], seg_frames))
+    return chunks
+
+
+def _slice_audio_ref(audio, seg_count, seg_seconds):
+    """Auto-slice reference audio per segment; loop when shorter than total."""
+    if not audio or audio.get("waveform") is None:
+        return [None] * seg_count
+    w = audio["waveform"]
+    sr = int(audio.get("sample_rate", 32000) or 32000)
+    seg_samples = max(1, int(round(sr * seg_seconds)))
+    total = w.shape[-1]
+    if total <= 0:
+        return [None] * seg_count
+    needed = seg_samples * seg_count
+    if total < needed:
+        reps = int(math.ceil(needed / total))
+        w = w.repeat(*([1] * (w.ndim - 1) + [reps]))
+    return [
+        {"waveform": w[..., i * seg_samples : (i + 1) * seg_samples].clone(), "sample_rate": sr}
+        for i in range(seg_count)
+    ]
+
+
 def run_chain(p, lang="zh"):
     """执行链式导演台核心逻辑。
 
@@ -129,8 +196,9 @@ def run_chain(p, lang="zh"):
     audio_vae = p["audio_vae"]
     clip = p["clip"]
     images = p.get("images") or {}
-    ref_videos = p.get("ref_videos") or {}
-    ref_audios = p.get("ref_audios") or {}
+    ref_video = p.get("ref_video")
+    ref_audio = p.get("ref_audio")
+    ref_video_fps = float(p.get("ref_video_fps") or 0.0)
 
     total_seconds = _to_seconds(p["duration_preset"], 30.0)
     segment_seconds = _to_seconds(p["split_preset"], 5.0)
@@ -161,6 +229,15 @@ def run_chain(p, lang="zh"):
         if lang == "en":
             raise ValueError(_EN["too_long"] % fc)
         raise ValueError("每段帧数 %d 超过模型上限 362（单段请控制在约 15 秒内）" % fc)
+
+    v_chunks = _slice_video_ref(ref_video, seg_count, fc, ref_video_fps, segment_seconds)
+    if ref_video is not None:
+        v_chunks = [_fit_frames(c, width, height) if c is not None else None for c in v_chunks]
+    a_chunks = _slice_audio_ref(ref_audio, seg_count, segment_seconds)
+    if ref_video is not None:
+        print("[MiniMaxH3ChainDirector] Reference video auto-sliced into %d segments" % seg_count, flush=True)
+    if ref_audio is not None:
+        print("[MiniMaxH3ChainDirector] Reference audio auto-sliced into %d segments (%.1fs each)" % (seg_count, segment_seconds), flush=True)
 
     timeline_prompt = p.get("timeline_prompt") or ""
     if not timeline_prompt.strip():
@@ -242,9 +319,11 @@ def run_chain(p, lang="zh"):
                 "ref_images": r2v_refs,
             }
             if "ref_videos" in inspect.signature(pack_r2v_group).parameters:
-                _pack_kwargs["ref_videos"] = ref_videos or None
-                _pack_kwargs["ref_audios"] = ref_audios or None
-            elif ref_videos or ref_audios:
+                if v_chunks[0] is not None:
+                    _pack_kwargs["ref_videos"] = {0: v_chunks[0]}
+                if a_chunks[0] is not None:
+                    _pack_kwargs["ref_audios"] = {0: a_chunks[0]}
+            elif v_chunks[0] is not None or a_chunks[0] is not None:
                 print(
                     "[MiniMaxH3ChainDirector] 当前 Director 版本不支持参考视频/音频，"
                     "已忽略这些输入，请更新 ComfyUI_MiniMaxH3_Director。",
@@ -279,6 +358,21 @@ def run_chain(p, lang="zh"):
             unique_id=node_id,
             **kwargs_groups,
         )
+        if i > 0 and (v_chunks[i] is not None or a_chunks[i] is not None):
+            try:
+                from ComfyUI_MiniMaxH3_Director.director.plan import SegmentRefAudio, SegmentRefVideo
+                _seg = plan.segments[0]
+                if v_chunks[i] is not None:
+                    _seg.ref_videos = [
+                        SegmentRefVideo(index=0, tensor=v_chunks[i], video_file="", meta={"external": True})
+                    ]
+                if a_chunks[i] is not None:
+                    _seg.ref_audios = [SegmentRefAudio(index=0, audio=a_chunks[i], audio_file="")]
+            except Exception as _ref_exc:
+                print(
+                    "[MiniMaxH3ChainDirector] Failed to attach segment %d reference (ignored): %s" % (i + 1, _ref_exc),
+                    flush=True,
+                )
         _exec_result = execute_director_plan_core(
             plan,
             node_id=node_id,
@@ -358,6 +452,7 @@ class MiniMaxH3ChainDirector:
                 "分段方式": (SPLIT_PRESETS, {"default": "5秒每段 (推荐)", "tooltip": "每段 5/10/15 秒；单段上限约 15 秒（362 帧）"}),
                 "分辨率预设（百万像素）": (list(RES_PRESETS.keys()), {"default": "0.4MP (480p)", "tooltip": "0.4MP=864×480(480p) / 0.9MP=1280×736(720p) / 2.0MP=1920×1088(1080p)"}),
                 "参考图最大边（像素）": ("INT", {"default": 864, "min": 256, "max": 2048, "tooltip": "参考图缩放的最大边长，一般与分辨率预设一致"}),
+                "ref_video_fps": ("INT", {"default": 0, "min": 0, "max": 240, "tooltip": "0 = auto proportional slicing (any fps); set real fps (e.g. 30) for exact per-second slicing"}),
                 "自动锚点": ("BOOLEAN", {"default": True, "tooltip": "自动追加锁帧句/体型/参考图一致性锚点"}),
                 "采样步数": ("INT", {"default": 4, "min": 1, "max": 100, "tooltip": "每一段内部的扩散采样步数；4步=加速LoRA推荐值，8步画质更细但耗时约翻倍"}),
                 "采样器": (list(KSampler.SAMPLERS), {"default": "er_sde"}),
@@ -376,12 +471,8 @@ class MiniMaxH3ChainDirector:
                 "image_6": ("IMAGE", {"tooltip": "第7张参考图 → <Picture 7>"}),
                 "image_7": ("IMAGE", {"tooltip": "第8张参考图 → <Picture 8>"}),
                 "image_8": ("IMAGE", {"tooltip": "第9张参考图 → <Picture 9>"}),
-                "ref_video_0": ("IMAGE", {"tooltip": "参考视频1（帧序列 IMAGE）→ <Video 1>，作用于首段 r2v"}),
-                "ref_video_1": ("IMAGE", {"tooltip": "参考视频2（帧序列 IMAGE）→ <Video 2>"}),
-                "ref_video_2": ("IMAGE", {"tooltip": "参考视频3（帧序列 IMAGE）→ <Video 3>"}),
-                "ref_audio_0": ("AUDIO", {"tooltip": "参考音频1 → <Audio 1>，作用于首段 r2v"}),
-                "ref_audio_1": ("AUDIO", {"tooltip": "参考音频2 → <Audio 2>"}),
-                "ref_audio_2": ("AUDIO", {"tooltip": "参考音频3 → <Audio 3>"}),
+                "ref_video": ("IMAGE", {"tooltip": "Reference video (frame batch; auto-sliced per segment and resampled; may be longer/shorter than total)"}),
+                "ref_audio": ("AUDIO", {"tooltip": "Reference audio (auto-sliced per segment, looped when short; may be longer/shorter than total)"}),
             },
         }
 
@@ -395,8 +486,8 @@ class MiniMaxH3ChainDirector:
         for i in range(1, 9):
             if kw.get(f"image_{i}") is not None:
                 images[i] = kw[f"image_{i}"]
-        ref_videos = {i: kw[f"ref_video_{i}"] for i in range(3) if kw.get(f"ref_video_{i}") is not None}
-        ref_audios = {i: kw[f"ref_audio_{i}"] for i in range(3) if kw.get(f"ref_audio_{i}") is not None}
+        ref_video = kw.get("ref_video")
+        ref_audio = kw.get("ref_audio")
         return run_chain(
             {
                 "model_r2v": kw["model_r2v"],
@@ -404,21 +495,24 @@ class MiniMaxH3ChainDirector:
                 "video_vae": kw["video_vae"],
                 "audio_vae": kw["audio_vae"],
                 "clip": kw["clip"],
-+
-                "global_prompt": kw["全局提示词"],
-                "timeline_prompt": kw["时间轴提示词"],
-                "duration_preset": kw["总时长预设"],
-                "split_preset": kw["分段方式"],
-                "resolution_preset": kw["分辨率预设（百万像素）"],
-                "ref_max_size": kw["参考图最大边（像素）"],
-                "auto_anchor": kw["自动锚点"],
-                "steps": kw["采样步数"],
-                "sampler": kw["采样器"],
-                "scheduler": kw["调度器"],
-                "cfg": kw["引导强度CFG"],
-                "seed": kw["随机种子"],
-                "shift_video": kw["视频时间偏移"],
-                "shift_audio": kw["音频时间偏移"],
+                "images": images,
+                "ref_video": ref_video,
+                "ref_audio": ref_audio,
+                "ref_video_fps": kw.get("ref_video_fps", 0),
+                "global_prompt": kw["global_prompt"],
+                "timeline_prompt": kw["timeline_prompt"],
+                "duration_preset": kw["duration_preset"],
+                "split_preset": kw["split_preset"],
+                "resolution_preset": kw["resolution_preset"],
+                "ref_max_size": kw["ref_max_size"],
+                "auto_anchor": kw["auto_anchor"],
+                "steps": kw["steps"],
+                "sampler": kw["sampler"],
+                "scheduler": kw["scheduler"],
+                "cfg": kw["cfg"],
+                "seed": kw["seed"],
+                "shift_video": kw["shift_video"],
+                "shift_audio": kw["shift_audio"],
             },
             lang="zh",
         )

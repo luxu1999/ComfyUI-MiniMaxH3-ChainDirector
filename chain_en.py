@@ -42,6 +42,7 @@ class MiniMaxH3ChainDirectorEN:
                 "split_preset": (EN_SPLIT_PRESETS, {"default": "5s per segment (recommended)", "tooltip": "5/10/15s per segment; max ~15s (362 frames) per segment"}),
                 "resolution_preset": (list(RES_PRESETS.keys()), {"default": "0.4MP (480p)", "tooltip": "0.4MP=864x480 (480p) / 0.9MP=1280x736 (720p) / 2.0MP=1920x1088 (1080p)"}),
                 "ref_max_size": ("INT", {"default": 864, "min": 256, "max": 2048, "tooltip": "Max edge length for reference image resizing; usually matches the resolution preset"}),
+                "ref_video_fps": ("INT", {"default": 0, "min": 0, "max": 240, "tooltip": "0 = auto proportional slicing (any fps); set real fps (e.g. 30) for exact per-second slicing"}),
                 "auto_anchor": ("BOOLEAN", {"default": True, "tooltip": "Auto-append first-frame lock / body-size / reference consistency anchors"}),
                 "steps": ("INT", {"default": 4, "min": 1, "max": 100, "tooltip": "Diffusion steps INSIDE EACH segment. 4 = turbo LoRA recommended; 8 is sharper but ~2x slower."}),
                 "sampler": (list(KSampler.SAMPLERS), {"default": "er_sde"}),
@@ -60,12 +61,8 @@ class MiniMaxH3ChainDirectorEN:
                 "image_6": ("IMAGE", {"tooltip": "Reference image 7 → <Picture 7>"}),
                 "image_7": ("IMAGE", {"tooltip": "Reference image 8 → <Picture 8>"}),
                 "image_8": ("IMAGE", {"tooltip": "Reference image 9 → <Picture 9>"}),
-                "ref_video_0": ("IMAGE", {"tooltip": "Reference video 1 (IMAGE frame batch) → <Video 1>, used by the first r2v segment"}),
-                "ref_video_1": ("IMAGE", {"tooltip": "Reference video 2 (IMAGE frame batch) → <Video 2>"}),
-                "ref_video_2": ("IMAGE", {"tooltip": "Reference video 3 (IMAGE frame batch) → <Video 3>"}),
-                "ref_audio_0": ("AUDIO", {"tooltip": "Reference audio 1 → <Audio 1>, used by the first r2v segment"}),
-                "ref_audio_1": ("AUDIO", {"tooltip": "Reference audio 2 → <Audio 2>"}),
-                "ref_audio_2": ("AUDIO", {"tooltip": "Reference audio 3 → <Audio 3>"}),
+                "ref_video": ("IMAGE", {"tooltip": "Reference video (frame batch; auto-sliced per segment and resampled; may be longer/shorter than total)"}),
+                "ref_audio": ("AUDIO", {"tooltip": "Reference audio (auto-sliced per segment, looped when short; may be longer/shorter than total)"}),
             },
         }
 
@@ -79,8 +76,8 @@ class MiniMaxH3ChainDirectorEN:
         for i in range(1, 9):
             if kw.get(f"image_{i}") is not None:
                 images[i] = kw[f"image_{i}"]
-        ref_videos = {i: kw[f"ref_video_{i}"] for i in range(3) if kw.get(f"ref_video_{i}") is not None}
-        ref_audios = {i: kw[f"ref_audio_{i}"] for i in range(3) if kw.get(f"ref_audio_{i}") is not None}
+        ref_video = kw.get("ref_video")
+        ref_audio = kw.get("ref_audio")
         return run_chain(
             {
                 "model_r2v": kw["model_r2v"],
@@ -88,7 +85,10 @@ class MiniMaxH3ChainDirectorEN:
                 "video_vae": kw["video_vae"],
                 "audio_vae": kw["audio_vae"],
                 "clip": kw["clip"],
-+
+                "images": images,
+                "ref_video": ref_video,
+                "ref_audio": ref_audio,
+                "ref_video_fps": kw.get("ref_video_fps", 0),
                 "global_prompt": kw["global_prompt"],
                 "timeline_prompt": kw["timeline_prompt"],
                 "duration_preset": kw["duration_preset"],
