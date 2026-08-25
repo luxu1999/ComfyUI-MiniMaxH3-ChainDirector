@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import json
 import re
+import inspect
 
 import torch
 from comfy.samplers import KSampler
@@ -128,6 +129,8 @@ def run_chain(p, lang="zh"):
     audio_vae = p["audio_vae"]
     clip = p["clip"]
     images = p.get("images") or {}
+    ref_videos = p.get("ref_videos") or {}
+    ref_audios = p.get("ref_audios") or {}
 
     total_seconds = _to_seconds(p["duration_preset"], 30.0)
     segment_seconds = _to_seconds(p["split_preset"], 5.0)
@@ -233,13 +236,21 @@ def run_chain(p, lang="zh"):
     for i in range(seg_count):
         if i == 0:
             prompt = _anchor_r2v(seg_prompts[0], auto_anchor)
-            groups = [
-                pack_r2v_group(
-                    prompt=prompt,
-                    duration_sec=segment_seconds,
-                    ref_images=r2v_refs,
+            _pack_kwargs = {
+                "prompt": prompt,
+                "duration_sec": segment_seconds,
+                "ref_images": r2v_refs,
+            }
+            if "ref_videos" in inspect.signature(pack_r2v_group).parameters:
+                _pack_kwargs["ref_videos"] = ref_videos or None
+                _pack_kwargs["ref_audios"] = ref_audios or None
+            elif ref_videos or ref_audios:
+                print(
+                    "[MiniMaxH3ChainDirector] 当前 Director 版本不支持参考视频/音频，"
+                    "已忽略这些输入，请更新 ComfyUI_MiniMaxH3_Director。",
+                    flush=True,
                 )
-            ]
+            groups = [pack_r2v_group(**_pack_kwargs)]
             task_type = "r2v — 参考主体生视频(Reference to Video)"
             kwargs_groups = {"r2v_groups": groups}
         else:
@@ -365,6 +376,12 @@ class MiniMaxH3ChainDirector:
                 "image_6": ("IMAGE", {"tooltip": "第7张参考图 → <Picture 7>"}),
                 "image_7": ("IMAGE", {"tooltip": "第8张参考图 → <Picture 8>"}),
                 "image_8": ("IMAGE", {"tooltip": "第9张参考图 → <Picture 9>"}),
+                "ref_video_0": ("IMAGE", {"tooltip": "参考视频1（帧序列 IMAGE）→ <Video 1>，作用于首段 r2v"}),
+                "ref_video_1": ("IMAGE", {"tooltip": "参考视频2（帧序列 IMAGE）→ <Video 2>"}),
+                "ref_video_2": ("IMAGE", {"tooltip": "参考视频3（帧序列 IMAGE）→ <Video 3>"}),
+                "ref_audio_0": ("AUDIO", {"tooltip": "参考音频1 → <Audio 1>，作用于首段 r2v"}),
+                "ref_audio_1": ("AUDIO", {"tooltip": "参考音频2 → <Audio 2>"}),
+                "ref_audio_2": ("AUDIO", {"tooltip": "参考音频3 → <Audio 3>"}),
             },
         }
 
@@ -378,6 +395,8 @@ class MiniMaxH3ChainDirector:
         for i in range(1, 9):
             if kw.get(f"image_{i}") is not None:
                 images[i] = kw[f"image_{i}"]
+        ref_videos = {i: kw[f"ref_video_{i}"] for i in range(3) if kw.get(f"ref_video_{i}") is not None}
+        ref_audios = {i: kw[f"ref_audio_{i}"] for i in range(3) if kw.get(f"ref_audio_{i}") is not None}
         return run_chain(
             {
                 "model_r2v": kw["model_r2v"],
@@ -385,7 +404,7 @@ class MiniMaxH3ChainDirector:
                 "video_vae": kw["video_vae"],
                 "audio_vae": kw["audio_vae"],
                 "clip": kw["clip"],
-                "images": images,
++
                 "global_prompt": kw["全局提示词"],
                 "timeline_prompt": kw["时间轴提示词"],
                 "duration_preset": kw["总时长预设"],

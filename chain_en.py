@@ -60,6 +60,12 @@ class MiniMaxH3ChainDirectorEN:
                 "image_6": ("IMAGE", {"tooltip": "Reference image 7 → <Picture 7>"}),
                 "image_7": ("IMAGE", {"tooltip": "Reference image 8 → <Picture 8>"}),
                 "image_8": ("IMAGE", {"tooltip": "Reference image 9 → <Picture 9>"}),
+                "ref_video_0": ("IMAGE", {"tooltip": "Reference video 1 (IMAGE frame batch) → <Video 1>, used by the first r2v segment"}),
+                "ref_video_1": ("IMAGE", {"tooltip": "Reference video 2 (IMAGE frame batch) → <Video 2>"}),
+                "ref_video_2": ("IMAGE", {"tooltip": "Reference video 3 (IMAGE frame batch) → <Video 3>"}),
+                "ref_audio_0": ("AUDIO", {"tooltip": "Reference audio 1 → <Audio 1>, used by the first r2v segment"}),
+                "ref_audio_1": ("AUDIO", {"tooltip": "Reference audio 2 → <Audio 2>"}),
+                "ref_audio_2": ("AUDIO", {"tooltip": "Reference audio 3 → <Audio 3>"}),
             },
         }
 
@@ -73,6 +79,8 @@ class MiniMaxH3ChainDirectorEN:
         for i in range(1, 9):
             if kw.get(f"image_{i}") is not None:
                 images[i] = kw[f"image_{i}"]
+        ref_videos = {i: kw[f"ref_video_{i}"] for i in range(3) if kw.get(f"ref_video_{i}") is not None}
+        ref_audios = {i: kw[f"ref_audio_{i}"] for i in range(3) if kw.get(f"ref_audio_{i}") is not None}
         return run_chain(
             {
                 "model_r2v": kw["model_r2v"],
@@ -80,7 +88,7 @@ class MiniMaxH3ChainDirectorEN:
                 "video_vae": kw["video_vae"],
                 "audio_vae": kw["audio_vae"],
                 "clip": kw["clip"],
-                "images": images,
++
                 "global_prompt": kw["global_prompt"],
                 "timeline_prompt": kw["timeline_prompt"],
                 "duration_preset": kw["duration_preset"],

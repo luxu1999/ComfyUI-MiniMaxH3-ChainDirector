@@ -71,6 +71,8 @@ MiniMax H3 单段直出有帧数上限（约 362 帧 ≈ 15 秒），且 16G 显
 
 > 通过 Comfy Registry / Manager 安装后，插件目录 `workflows/` 下即以上述英文文件名出现；GitHub 源码里另有同名中文版副本（`MiniMax H3 Chain Director｜链式导演台（多段拼接）工作流.*`），内容完全一致，方便网页浏览。
 
+> 节点另有 3 个参考视频输入（ef_video_0~2，接 IMAGE 帧序列，可用 VHS LoadVideo 取帧）与 3 个参考音频输入（ef_audio_0~2，接 AUDIO），作用于首段 r2v；旧版 Director 不支持时会自动忽略并提示更新。
+
 > 示例参考图：`input/桌面.jpg`、`input/正面.png`、`input/侧面.png`、`input/背面.png`。换成自己的图时改 `LoadImage` 文件名即可，数量随意（最多 9 张）。
 
 ## 安装（零配置三步）
