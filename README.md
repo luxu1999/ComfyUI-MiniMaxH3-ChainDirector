@@ -53,6 +53,7 @@ MiniMax H3 单段直出有帧数上限（约 362 帧 ≈ 15 秒），且 16G 显
 | 随机种子 | `seed` | 固定可复现 |
 | 视频时间偏移 | `shift_video` | 推荐 12.0 |
 | 音频时间偏移 | `shift_audio` | 推荐 3.0 |
+> 每个参数的具体含义、选择建议与常见场景配置详见 [docs/参数详解与推荐配置.md](docs/参数详解与推荐配置.md)（英文版 [docs/parameter-guide.md](docs/parameter-guide.md)）。
 
 ### 注意
 
@@ -148,6 +149,8 @@ python patches/apply_patches.py            # 自动定位到 custom_nodes/ComfyU
 
 提示词写法见 [docs/prompt-writing-guide.md](docs/prompt-writing-guide.md)（通用提示词填写方法）与 [docs/prompt-split-and-consistency-guide.md](docs/prompt-split-and-consistency-guide.md)（总提示词拆分与一致性指南）；仓库内另有对应中文文件名副本，内容一致。
 
+采样参数（步数/采样器/调度器/CFG/参考视频帧率/自动锚点）的含义与选择建议见 [docs/参数详解与推荐配置.md](docs/参数详解与推荐配置.md)。
+
 ## 兼容性
 
 - ComfyUI ≥ 0.30（推荐 0.31.x）
@@ -162,6 +165,8 @@ MIT
 - [ComfyUI_MiniMaxH3_Director](https://github.com/AIMixer/ComfyUI_MiniMaxH3_Director)（AIMixer）
 - MiniMax H3 / LightX2V
 ## 更新记录
+- 2026-08-31：新增参数详解文档（`docs/参数详解与推荐配置.md` 与 `docs/parameter-guide.md`），说明 ref_video_fps / 自动锚点 / 采样步数 / 采样器 / 调度器 / CFG 的含义与推荐配置，并补充「旧工作流参数错位」「sageattention 缺失」两种常见报错的排查方法。
+
 - 2026-08-26：**新增参考视频/音频功能**——新增 `ref_video`（参考视频，单口接 IMAGE 帧序列，VHS LoadVideo 可直接连接）与 `ref_audio`（参考音频，单口接 AUDIO）两个接口；长参考自动按段切分（视频等比或按帧率精确切并重采样对齐，音频按秒切分、不足循环补足），参考作用于**每一段**（首段 r2v + 后续 i2v 段）；新增「参考视频帧率」参数；修复中文节点参数键名回归。
 
 - 2026-08-24：新增运行时自动检测/内存补齐 Director 连续性接线，克隆最新 Director 即可用，无需手动打补丁；原 patches/apply_patches.py 手动方式保留。
